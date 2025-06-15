@@ -20,7 +20,7 @@ Renderer::Renderer(sf::RenderWindow& window) : window(window), cell(sf::Vector2f
     };
     
     // Load background texture
-    if (background_texture.loadFromFile("Resources/Images/background.png"))
+    if (background_texture.loadFromFile("Resources/Images/background.jpg"))
     {
         background_sprite = std::make_unique<sf::Sprite>(background_texture);
         
@@ -50,6 +50,11 @@ void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, 
         if (state.get_current_mode() == GameMode::MENU)
         {
             render_menu(state);
+        }
+        else if (state.get_current_mode() == GameMode::GAME_OVER || state.is_game_over())
+        {
+            // Game over: show background and game over text only
+            render_ui(state);
         }
         else
         {
@@ -192,18 +197,9 @@ void Renderer::render_next_tetromino_preview(const GameState& state)
 
 void Renderer::render_ui(const GameState& state)
 {
-    std::string text = "Lines:" + std::to_string(state.get_lines_cleared()) + 
-                      "\nSpeed:" + std::to_string(START_FALL_SPEED / state.get_current_fall_speed()) + 'x';
-    
-    draw_text(
-        static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS)),
-        static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS),
-        text,
-        window
-    );
-    
     if (state.is_game_over())
     {
+        // Game over: only show game over text
         // Calculate center position for game over text
         unsigned short center_x = static_cast<unsigned short>(CELL_SIZE * COLUMNS);
         unsigned short center_y = static_cast<unsigned short>(CELL_SIZE * ROWS * 0.4f);
@@ -226,6 +222,19 @@ void Renderer::render_ui(const GameState& state)
             window,
             sf::Color::White,
             0.6f  // Smaller scale for instruction text
+        );
+    }
+    else
+    {
+        // Normal game: show statistics
+        std::string text = "Lines:" + std::to_string(state.get_lines_cleared()) + 
+                          "\nSpeed:" + std::to_string(START_FALL_SPEED / state.get_current_fall_speed()) + 'x';
+        
+        draw_text(
+            static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS)),
+            static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS),
+            text,
+            window
         );
     }
 }
@@ -295,7 +304,7 @@ void Renderer::render_menu(const GameState& state)
         static_cast<unsigned short>(CELL_SIZE * ROWS * 0.75f),
         "Use mouse or UP/DOWN keys to navigate",
         window,
-        sf::Color(150, 150, 150),
+        sf::Color::Magenta,
         0.6f
     );
     
@@ -304,7 +313,7 @@ void Renderer::render_menu(const GameState& state)
         static_cast<unsigned short>(CELL_SIZE * ROWS * 0.8f),
         "Click or press ENTER to select",
         window,
-        sf::Color(150, 150, 150),
+        sf::Color::Magenta,
         0.6f
     );
 }
