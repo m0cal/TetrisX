@@ -5,6 +5,8 @@ GameState::GameState() :
     game_over(false),
     hard_drop_pressed(false),
     rotate_pressed(false),
+    current_mode(GameMode::MENU),
+    selected_menu_option(0),
     lines_cleared(0),
     clear_effect_timer(0),
     current_fall_speed(START_FALL_SPEED),
@@ -24,6 +26,8 @@ void GameState::reset_game()
     game_over = false;
     hard_drop_pressed = false;
     rotate_pressed = false;
+    current_mode = GameMode::PLAYING;
+    selected_menu_option = 0;
     lines_cleared = 0;
     current_fall_speed = START_FALL_SPEED;
     fall_timer = 0;

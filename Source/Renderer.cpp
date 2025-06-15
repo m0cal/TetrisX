@@ -2,6 +2,7 @@
 #include "Headers/DrawText.hpp"
 #include "Headers/GetTetromino.hpp"
 #include <cmath>
+#include <algorithm>
 
 Renderer::Renderer(sf::RenderWindow& window) : window(window), cell(sf::Vector2f(CELL_SIZE - 1, CELL_SIZE - 1))
 {
@@ -25,17 +26,24 @@ void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, 
     {
         window.clear();
         
-        render_matrix(state);
-        
-        if (!state.is_game_over())
+        if (state.get_current_mode() == GameMode::MENU)
         {
-            render_ghost_tetromino(tetromino, state);
+            render_menu(state);
         }
-        
-        render_tetromino(tetromino, state);
-        render_line_clear_effect(state);
-        render_next_tetromino_preview(state);
-        render_ui(state);
+        else
+        {
+            render_matrix(state);
+            
+            if (!state.is_game_over())
+            {
+                render_ghost_tetromino(tetromino, state);
+            }
+            
+            render_tetromino(tetromino, state);
+            render_line_clear_effect(state);
+            render_next_tetromino_preview(state);
+            render_ui(state);
+        }
         
         window.display();
     }
@@ -166,6 +174,11 @@ void Renderer::render_ui(const GameState& state)
     std::string text = "Lines:" + std::to_string(state.get_lines_cleared()) + 
                       "\nSpeed:" + std::to_string(START_FALL_SPEED / state.get_current_fall_speed()) + 'x';
     
+    if (state.is_game_over())
+    {
+        text += "\n\nGAME OVER\nPress ENTER to return to menu";
+    }
+    
     draw_text(
         static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS)),
         static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS),
@@ -177,4 +190,78 @@ void Renderer::render_ui(const GameState& state)
 unsigned char Renderer::calculate_clear_cell_size(unsigned char clear_effect_timer) const
 {
     return static_cast<unsigned char>(2 * std::round(0.5f * CELL_SIZE * (clear_effect_timer / static_cast<float>(CLEAR_EFFECT_DURATION))));
+}
+
+void Renderer::render_menu(const GameState& state)
+{
+    // Calculate center positions
+    unsigned short center_x = static_cast<unsigned short>(CELL_SIZE * COLUMNS);
+    
+    // Draw title (larger)
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.15f),
+        "TETRIS X",
+        window,
+        sf::Color::Cyan,
+        2.0f
+    );
+    
+    // Draw menu options (smaller)
+    sf::Color start_color = (state.get_selected_menu_option() == 0) ? sf::Color::Yellow : sf::Color::White;
+    sf::Color exit_color = (state.get_selected_menu_option() == 1) ? sf::Color::Yellow : sf::Color::White;
+    
+    // Draw START option
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.45f),
+        "START GAME",
+        window,
+        start_color,
+        0.8f
+    );
+    
+    // Draw EXIT option
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.55f),
+        "EXIT",
+        window,
+        exit_color,
+        0.8f
+    );
+    
+    // Draw selection indicator (left side of selected option)
+    unsigned short indicator_y = static_cast<unsigned short>(CELL_SIZE * ROWS * (0.45f + 0.1f * state.get_selected_menu_option()));
+    unsigned short start_text_width = get_text_width("START GAME", 0.8f);
+    unsigned short exit_text_width = get_text_width("EXIT", 0.8f);
+    unsigned short max_text_width = std::max(start_text_width, exit_text_width);
+    
+    draw_text_centered(
+        static_cast<unsigned short>(center_x - max_text_width / 2 - CELL_SIZE),
+        indicator_y,
+        ">",
+        window,
+        sf::Color::Green,
+        0.8f
+    );
+    
+    // Draw instructions (smaller)
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.75f),
+        "Use mouse or UP/DOWN keys to navigate",
+        window,
+        sf::Color(150, 150, 150),
+        0.6f
+    );
+    
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.8f),
+        "Click or press ENTER to select",
+        window,
+        sf::Color(150, 150, 150),
+        0.6f
+    );
 }

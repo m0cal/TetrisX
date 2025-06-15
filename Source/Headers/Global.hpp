@@ -1,5 +1,13 @@
 #pragma once
 
+//Game states
+enum class GameMode
+{
+    MENU,
+    PLAYING,
+    GAME_OVER
+};
+
 //The size of the cell
 constexpr unsigned char CELL_SIZE = 8;
 //The duration of the line clearing effect

@@ -11,6 +11,9 @@ private:
     bool hard_drop_pressed;
     bool rotate_pressed;
     
+    GameMode current_mode;
+    int selected_menu_option; // 0 = Start Game, 1 = Exit
+    
     unsigned lines_cleared;
     unsigned char clear_effect_timer;
     unsigned char current_fall_speed;
@@ -33,6 +36,8 @@ public:
     bool is_game_over() const { return game_over; }
     bool is_hard_drop_pressed() const { return hard_drop_pressed; }
     bool is_rotate_pressed() const { return rotate_pressed; }
+    GameMode get_current_mode() const { return current_mode; }
+    int get_selected_menu_option() const { return selected_menu_option; }
     unsigned get_lines_cleared() const { return lines_cleared; }
     unsigned char get_clear_effect_timer() const { return clear_effect_timer; }
     unsigned char get_current_fall_speed() const { return current_fall_speed; }
@@ -48,6 +53,8 @@ public:
     void set_game_over(bool value) { game_over = value; }
     void set_hard_drop_pressed(bool value) { hard_drop_pressed = value; }
     void set_rotate_pressed(bool value) { rotate_pressed = value; }
+    void set_current_mode(GameMode mode) { current_mode = mode; }
+    void set_selected_menu_option(int option) { selected_menu_option = option; }
     void set_fall_timer(unsigned char value) { fall_timer = value; }
     void set_move_timer(unsigned char value) { move_timer = value; }
     void set_soft_drop_timer(unsigned char value) { soft_drop_timer = value; }

@@ -47,24 +47,69 @@ void Game::update()
 {
     InputHandler::handle_events(window, state);
     
-    if (state.get_clear_effect_timer() == 0)
+    if (state.get_current_mode() == GameMode::MENU)
     {
-        InputHandler::handle_gameplay_input(state, tetromino);
+        InputHandler::handle_menu_input(state);
+        InputHandler::handle_menu_mouse_input(window, state);
         
-        if (!state.is_game_over())
+        // Check if user selected exit (keyboard or mouse)
+        if (state.get_selected_menu_option() == 1)
         {
-            handle_tetromino_falling();
+            static bool enter_pressed = false;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Enter) && !enter_pressed)
+            {
+                enter_pressed = true;
+                window.close();
+            }
+            else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Enter))
+            {
+                enter_pressed = false;
+            }
+            
+            // Handle mouse click for exit
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+            {
+                sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+                sf::Vector2f world_pos = window.mapPixelToCoords(mouse_pos);
+                
+                float game_x = world_pos.x;
+                float game_y = world_pos.y;
+                float exit_button_y = CELL_SIZE * ROWS * 0.52f;
+                float button_height = CELL_SIZE * ROWS * 0.06f;
+                float center_x = CELL_SIZE * COLUMNS;
+                float button_half_width = CELL_SIZE * COLUMNS * 0.4f;
+                float button_left = center_x - button_half_width;
+                float button_right = center_x + button_half_width;
+                
+                if (game_x >= button_left && game_x <= button_right &&
+                    game_y >= exit_button_y && game_y <= exit_button_y + button_height)
+                {
+                    window.close();
+                }
+            }
         }
     }
-    else
+    else if (state.get_current_mode() == GameMode::PLAYING || state.get_current_mode() == GameMode::GAME_OVER)
     {
-        LineClearing::process_line_clearing_effect(state);
-        
         if (state.get_clear_effect_timer() == 0)
         {
-            bool game_over = !tetromino.reset(state.get_next_shape(), state.get_matrix());
-            state.set_game_over(game_over);
-            state.set_next_shape(state.generate_next_shape());
+            InputHandler::handle_gameplay_input(state, tetromino);
+            
+            if (!state.is_game_over())
+            {
+                handle_tetromino_falling();
+            }
+        }
+        else
+        {
+            LineClearing::process_line_clearing_effect(state);
+            
+            if (state.get_clear_effect_timer() == 0)
+            {
+                bool game_over = !tetromino.reset(state.get_next_shape(), state.get_matrix());
+                state.set_game_over(game_over);
+                state.set_next_shape(state.generate_next_shape());
+            }
         }
     }
 }

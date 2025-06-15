@@ -17,6 +17,7 @@ public:
     explicit Renderer(sf::RenderWindow& window);
     
     void render_frame(const GameState& state, const Tetromino& tetromino, unsigned lag);
+    void render_menu(const GameState& state);
     
 private:
     void render_matrix(const GameState& state);
