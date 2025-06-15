@@ -67,10 +67,32 @@ unsigned char Tetromino::get_shape() const
 	return shape;
 }
 
-void Tetromino::hard_drop(const std::vector<std::vector<unsigned char>>& i_matrix)
+unsigned char Tetromino::hard_drop(const std::vector<std::vector<unsigned char>>& i_matrix)
 {
-	//I'm so smart. I used the ghost tetromino function to make the hard drop function
+	// Calculate how far we can drop
+	unsigned char drop_distance = 0;
+	for (const Position& mino : minos)
+	{
+		unsigned char distance_for_this_mino = 0;
+		for (char y = mino.y + 1; y < ROWS; y++)
+		{
+			if (0 < i_matrix[mino.x][y])
+			{
+				break;
+			}
+			distance_for_this_mino++;
+		}
+		// The minimum distance among all minos is how far we can drop
+		if (drop_distance == 0 || distance_for_this_mino < drop_distance)
+		{
+			drop_distance = distance_for_this_mino;
+		}
+	}
+	
+	// Move to the drop position
 	minos = get_ghost_minos(i_matrix);
+	
+	return drop_distance;
 }
 
 void Tetromino::move_left(const std::vector<std::vector<unsigned char>>& i_matrix)

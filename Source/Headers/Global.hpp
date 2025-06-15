@@ -5,7 +5,8 @@ enum class GameMode
 {
     MENU,
     PLAYING,
-    GAME_OVER
+    GAME_OVER,
+    LEADERBOARD
 };
 
 //The size of the cell

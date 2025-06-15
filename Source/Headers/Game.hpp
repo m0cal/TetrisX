@@ -9,6 +9,7 @@
 #include "LineClearing.hpp"
 #include "Tetromino.hpp"
 #include "AudioManager.hpp"
+#include "LeaderboardManager.hpp"
 
 class Game
 {
@@ -16,13 +17,16 @@ private:
     unsigned lag;
     std::chrono::time_point<std::chrono::steady_clock> previous_time;
     bool failure_sound_played;
+    bool score_saved; // Flag to prevent saving score multiple times
     GameMode previous_game_mode;
+    unsigned int last_lines_cleared_count;
     
     GameState state;
     Tetromino tetromino;
     sf::RenderWindow window;
     Renderer renderer;
     AudioManager audio_manager;
+    LeaderboardManager leaderboard_manager;
 
 public:
     Game();
@@ -34,5 +38,6 @@ private:
     void update();
     void handle_tetromino_falling();
     void handle_tetromino_placement();
+    void handle_game_over();
     void setup_window();
 };

@@ -18,7 +18,9 @@ add_executable(tetris
     Source/InputHandler.cpp
     Source/LineClearing.cpp
     Source/Renderer.cpp
-    Source/Game.cpp)
+    Source/Game.cpp
+    Source/ScoreSystem.cpp
+    Source/LeaderboardManager.cpp)
 target_include_directories(tetris PRIVATE Source/Headers)
 target_link_libraries(tetris PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)
 install(TARGETS tetris)

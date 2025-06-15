@@ -3,6 +3,7 @@
 #include <vector>
 #include <random>
 #include "Global.hpp"
+#include "ScoreSystem.hpp"
 
 class GameState
 {
@@ -12,7 +13,7 @@ private:
     bool rotate_pressed;
     
     GameMode current_mode;
-    int selected_menu_option; // 0 = Start Game, 1 = Exit
+    int selected_menu_option; // 0 = Start Game, 1 = Leaderboard, 2 = Exit
     
     unsigned lines_cleared;
     unsigned char clear_effect_timer;
@@ -28,6 +29,8 @@ private:
     std::random_device random_device;
     std::default_random_engine random_engine;
     std::uniform_int_distribution<unsigned short> shape_distribution;
+    
+    ScoreSystem score_system;
 
 public:
     GameState();
@@ -48,6 +51,8 @@ public:
     const std::vector<bool>& get_clear_lines() const { return clear_lines; }
     const std::vector<std::vector<unsigned char>>& get_matrix() const { return matrix; }
     std::vector<std::vector<unsigned char>>& get_matrix() { return matrix; }
+    ScoreSystem& get_score_system() { return score_system; }
+    const ScoreSystem& get_score_system() const { return score_system; }
     
     // Setters
     void set_game_over(bool value) { game_over = value; }
@@ -64,6 +69,7 @@ public:
     void reset_game();
     void increment_fall_timer() { fall_timer++; }
     void increment_lines_cleared();
+    void increment_lines_cleared(unsigned int count);
     void decrement_clear_effect_timer() { clear_effect_timer--; }
     void update_move_timer() { move_timer = (1 + move_timer) % MOVE_SPEED; }
     void update_soft_drop_timer() { soft_drop_timer = (1 + soft_drop_timer) % SOFT_DROP_SPEED; }
@@ -71,4 +77,5 @@ public:
     void set_next_shape(unsigned char shape) { next_shape = shape; }
     void set_clear_line(unsigned char row, bool value) { clear_lines[row] = value; }
     void clear_clear_lines();
+    void update_fall_speed_from_level();
 };

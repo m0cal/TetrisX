@@ -35,7 +35,7 @@ Renderer::Renderer(sf::RenderWindow& window) : window(window), cell(sf::Vector2f
     }
 }
 
-void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, unsigned lag)
+void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, unsigned lag, const LeaderboardManager* leaderboard_manager)
 {
     if (FRAME_DURATION > lag)
     {
@@ -50,6 +50,13 @@ void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, 
         if (state.get_current_mode() == GameMode::MENU)
         {
             render_menu(state);
+        }
+        else if (state.get_current_mode() == GameMode::LEADERBOARD)
+        {
+            if (leaderboard_manager)
+            {
+                render_leaderboard(*leaderboard_manager);
+            }
         }
         else if (state.get_current_mode() == GameMode::GAME_OVER || state.is_game_over())
         {
@@ -226,16 +233,31 @@ void Renderer::render_ui(const GameState& state)
     }
     else
     {
-        // Normal game: show statistics
-        std::string text = "Lines:" + std::to_string(state.get_lines_cleared()) + 
-                          "\nSpeed:" + std::to_string(START_FALL_SPEED / state.get_current_fall_speed()) + 'x';
-        
-        draw_text(
-            static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS)),
-            static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS),
-            text,
-            window
-        );
+        // Normal game: show statistics and score info
+        render_score_info(state);
+    }
+}
+
+void Renderer::render_score_info(const GameState& state)
+{
+    const ScoreSystem& score_system = state.get_score_system();
+    
+    std::string score_text = "Score: " + std::to_string(score_system.get_current_score());
+    std::string level_text = "Level: " + std::to_string(score_system.get_current_level());
+    std::string lines_text = "Lines: " + std::to_string(state.get_lines_cleared());
+    std::string combo_text = "Combo: " + std::to_string(score_system.get_combo_count());
+    
+    // Position on the right side of the game area
+    unsigned short text_x = static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS));
+    unsigned short start_y = static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS);
+    
+    draw_text(text_x, start_y, score_text, window, sf::Color::White);
+    draw_text(text_x, static_cast<unsigned short>(start_y + CELL_SIZE * 2), level_text, window, sf::Color::Cyan);
+    draw_text(text_x, static_cast<unsigned short>(start_y + CELL_SIZE * 4), lines_text, window, sf::Color::Green);
+    
+    if (score_system.get_combo_count() > 0)
+    {
+        draw_text(text_x, static_cast<unsigned short>(start_y + CELL_SIZE * 6), combo_text, window, sf::Color::Yellow);
     }
 }
 
@@ -261,22 +283,33 @@ void Renderer::render_menu(const GameState& state)
     
     // Draw menu options (smaller)
     sf::Color start_color = (state.get_selected_menu_option() == 0) ? sf::Color::Yellow : sf::Color::White;
-    sf::Color exit_color = (state.get_selected_menu_option() == 1) ? sf::Color::Yellow : sf::Color::White;
+    sf::Color leaderboard_color = (state.get_selected_menu_option() == 1) ? sf::Color::Yellow : sf::Color::White;
+    sf::Color exit_color = (state.get_selected_menu_option() == 2) ? sf::Color::Yellow : sf::Color::White;
     
     // Draw START option
     draw_text_centered(
         center_x,
-        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.45f),
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.4f),
         "START GAME",
         window,
         start_color,
         0.8f
     );
     
+    // Draw LEADERBOARD option
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.5f),
+        "LEADERBOARD",
+        window,
+        leaderboard_color,
+        0.8f
+    );
+    
     // Draw EXIT option
     draw_text_centered(
         center_x,
-        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.55f),
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.6f),
         "EXIT",
         window,
         exit_color,
@@ -284,10 +317,11 @@ void Renderer::render_menu(const GameState& state)
     );
     
     // Draw selection indicator (left side of selected option)
-    unsigned short indicator_y = static_cast<unsigned short>(CELL_SIZE * ROWS * (0.45f + 0.1f * state.get_selected_menu_option()));
+    unsigned short indicator_y = static_cast<unsigned short>(CELL_SIZE * ROWS * (0.4f + 0.1f * state.get_selected_menu_option()));
     unsigned short start_text_width = get_text_width("START GAME", 0.8f);
+    unsigned short leaderboard_text_width = get_text_width("LEADERBOARD", 0.8f);
     unsigned short exit_text_width = get_text_width("EXIT", 0.8f);
-    unsigned short max_text_width = std::max(start_text_width, exit_text_width);
+    unsigned short max_text_width = std::max({start_text_width, leaderboard_text_width, exit_text_width});
     
     draw_text_centered(
         static_cast<unsigned short>(center_x - max_text_width / 2 - CELL_SIZE),
@@ -316,4 +350,78 @@ void Renderer::render_menu(const GameState& state)
         sf::Color::Magenta,
         0.6f
     );
+}
+
+void Renderer::render_leaderboard(const LeaderboardManager& leaderboard_manager)
+{
+    window.clear();
+    
+    // Draw background
+    if (background_sprite)
+    {
+        window.draw(*background_sprite);
+    }
+    
+    unsigned short center_x = static_cast<unsigned short>(CELL_SIZE * COLUMNS);
+    
+    // Draw title
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.1f),
+        "HIGH SCORES",
+        window,
+        sf::Color::Cyan,
+        1.5f
+    );
+    
+    // Draw header
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.2f),
+        "Rank  Name      Score     Level Lines Time",
+        window,
+        sf::Color::White,
+        0.6f
+    );
+    
+    // Draw scores
+    const auto& high_scores = leaderboard_manager.get_high_scores();
+    for (size_t i = 0; i < high_scores.size() && i < 8; ++i)
+    {
+        std::string entry_text = leaderboard_manager.format_score_entry(high_scores[i], i + 1);
+        
+        draw_text_centered(
+            center_x,
+            static_cast<unsigned short>(CELL_SIZE * ROWS * (0.3f + i * 0.06f)),
+            entry_text,
+            window,
+            sf::Color::White,
+            0.5f
+        );
+    }
+    
+    // If no scores yet
+    if (high_scores.empty())
+    {
+        draw_text_centered(
+            center_x,
+            static_cast<unsigned short>(CELL_SIZE * ROWS * 0.5f),
+            "No high scores yet!",
+            window,
+            sf::Color(128, 128, 128),
+            0.8f
+        );
+    }
+    
+    // Draw instructions
+    draw_text_centered(
+        center_x,
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.9f),
+        "Press ESC to return to menu",
+        window,
+        sf::Color::Magenta,
+        0.6f
+    );
+    
+    window.display();
 }

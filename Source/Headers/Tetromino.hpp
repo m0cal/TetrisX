@@ -17,7 +17,7 @@ public:
 
 	unsigned char get_shape() const;
 
-	void hard_drop(const std::vector<std::vector<unsigned char>>& i_matrix);
+	unsigned char hard_drop(const std::vector<std::vector<unsigned char>>& i_matrix);
 	void move_left(const std::vector<std::vector<unsigned char>>& i_matrix);
 	void move_right(const std::vector<std::vector<unsigned char>>& i_matrix);
 	void rotate(bool i_clockwise, const std::vector<std::vector<unsigned char>>& i_matrix);

@@ -5,6 +5,7 @@ void LineClearing::check_and_mark_lines_for_clearing(GameState& state, AudioMana
 {
     const auto& matrix = state.get_matrix();
     bool lines_found = false;
+    unsigned int lines_cleared_count = 0;
     
     for (unsigned char row = 0; row < ROWS; row++)
     {
@@ -13,6 +14,7 @@ void LineClearing::check_and_mark_lines_for_clearing(GameState& state, AudioMana
             state.increment_lines_cleared();
             state.set_clear_line(row, true);
             lines_found = true;
+            lines_cleared_count++;
         }
     }
     
