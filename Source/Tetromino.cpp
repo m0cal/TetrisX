@@ -78,7 +78,7 @@ bool Tetromino::reset(unsigned char i_shape, const std::vector<std::vector<unsig
 	return 1;
 }
 
-unsigned char Tetromino::get_shape()
+unsigned char Tetromino::get_shape() const
 {
 	//I'm gonna take a wild guess and say that this return the shape of the tetromino
 	return shape;
@@ -297,7 +297,7 @@ void Tetromino::update_matrix(std::vector<std::vector<unsigned char>>& i_matrix)
 	}
 }
 
-std::vector<Position> Tetromino::get_ghost_minos(const std::vector<std::vector<unsigned char>>& i_matrix)
+std::vector<Position> Tetromino::get_ghost_minos(const std::vector<std::vector<unsigned char>>& i_matrix) const
 {
 	//We're just moving the tetromino down until it hits something. Then we're returning it's position
 	bool keep_falling = 1;
@@ -305,12 +305,11 @@ std::vector<Position> Tetromino::get_ghost_minos(const std::vector<std::vector<u
 	unsigned char total_movement = 0;
 
 	std::vector<Position> ghost_minos = minos;
-
 	while (1 == keep_falling)
 	{
 		total_movement++;
 
-		for (Position& mino : minos)
+		for (const Position& mino : minos)
 		{
 			if (ROWS == total_movement + mino.y)
 			{
@@ -340,7 +339,7 @@ std::vector<Position> Tetromino::get_ghost_minos(const std::vector<std::vector<u
 	return ghost_minos;
 }
 
-std::vector<Position> Tetromino::get_minos()
+std::vector<Position> Tetromino::get_minos() const
 {
 	//Return minos (I'm so good at explaining stuff!)
 	return minos;

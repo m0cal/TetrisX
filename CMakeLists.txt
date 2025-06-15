@@ -12,7 +12,12 @@ add_executable(tetris
     Source/GetTetromino.cpp
     Source/GetWallKickData.cpp
     Source/Main.cpp
-    Source/Tetromino.cpp)
+    Source/Tetromino.cpp
+    Source/GameState.cpp
+    Source/InputHandler.cpp
+    Source/LineClearing.cpp
+    Source/Renderer.cpp
+    Source/Game.cpp)
 target_include_directories(tetris PRIVATE Source/Headers)
 target_link_libraries(tetris PRIVATE SFML::Graphics SFML::Window SFML::System)
 install(TARGETS tetris)
