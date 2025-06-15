@@ -10,16 +10,18 @@ void draw_text(unsigned short i_x, unsigned short i_y, const std::string& i_text
 
 	unsigned char character_width;
 
-	sf::Sprite character_sprite;
-
 	sf::Texture font_texture;
-	font_texture.loadFromFile("Resources/Images/Font.png");
+	if (!font_texture.loadFromFile("Resources/Images/Font.png"))
+	{
+		// Handle error - could not load font
+		return;
+	}
 
 	//We're gonna calculate the width of the character based on the font image size
 	//96 because there are 96 character in the image
 	character_width = font_texture.getSize().x / 96;
 
-	character_sprite.setTexture(font_texture);
+	sf::Sprite character_sprite(font_texture);
 
 	for (const char a : i_text)
 	{
@@ -27,15 +29,15 @@ void draw_text(unsigned short i_x, unsigned short i_y, const std::string& i_text
 		{
 			//After every newline we put increase the y-coordinate and reset the x-coordinate
 			character_x = i_x;
-			character_y += font_texture.getSize().y;
+			character_y += static_cast<int>(font_texture.getSize().y);
 
 			continue;
 		}
 
 		//Change the position of the next character
-		character_sprite.setPosition(character_x, character_y);
+		character_sprite.setPosition(sf::Vector2f(character_x, character_y));
 		//Pick the character from the font image
-		character_sprite.setTextureRect(sf::IntRect(character_width * (a - 32), 0, character_width, font_texture.getSize().y));
+		character_sprite.setTextureRect(sf::IntRect({character_width * (a - 32), 0}, {static_cast<int>(character_width), static_cast<int>(font_texture.getSize().y)}));
 
 		//Increase the x-coordinate
 		character_x += character_width;

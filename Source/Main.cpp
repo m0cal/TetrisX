@@ -61,18 +61,20 @@ int main()
 		sf::Color(146, 0, 255),
 		sf::Color(219, 0, 0),
 		sf::Color(73, 73, 85)
-	};
-
-	//Game matrix. Everything will happen to this matrix
+	};	//Game matrix. Everything will happen to this matrix
 	std::vector<std::vector<unsigned char>> matrix(COLUMNS, std::vector<unsigned char>(ROWS));
 
-	//SFML thing. Stores events, I think
-	sf::Event event;
-
 	//Window
-	sf::RenderWindow window(sf::VideoMode(2 * CELL_SIZE * COLUMNS * SCREEN_RESIZE, CELL_SIZE * ROWS * SCREEN_RESIZE), "Tetris", sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode({2 * CELL_SIZE * COLUMNS * SCREEN_RESIZE, CELL_SIZE * ROWS * SCREEN_RESIZE}), "Tetris", sf::Style::Close);
+	
+	// Set window position to center of screen to fix Hyprland positioning issue
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	unsigned int windowWidth = 2 * CELL_SIZE * COLUMNS * SCREEN_RESIZE;
+	unsigned int windowHeight = CELL_SIZE * ROWS * SCREEN_RESIZE;
+	window.setPosition(sf::Vector2i((desktop.size.x - windowWidth) / 2, (desktop.size.y - windowHeight) / 2));
+	
 	//Resizing the window
-	window.setView(sf::View(sf::FloatRect(0, 0, 2 * CELL_SIZE * COLUMNS, CELL_SIZE * ROWS)));
+	window.setView(sf::View(sf::FloatRect({0, 0}, {2 * CELL_SIZE * COLUMNS, CELL_SIZE * ROWS})));
 
 	//Falling tetromino. At the start we're gonna give it a random shape
 	Tetromino tetromino(static_cast<unsigned char>(shape_distribution(random_engine)), matrix);
@@ -99,60 +101,51 @@ int main()
 		while (FRAME_DURATION <= lag)
 		{
 			//Subtract the right thing from the left thing
-			lag -= FRAME_DURATION;
-
-			//Looping through the events
-			while (1 == window.pollEvent(event))
+			lag -= FRAME_DURATION;			//Looping through the events
+			while (auto event = window.pollEvent())
 			{
 				//Check the event type
-				switch (event.type)
+				if (const auto* closeEvent = event->getIf<sf::Event::Closed>())
 				{
-					//If the user closed the game
-					case sf::Event::Closed:
+					//Close the window
+					window.close();
+				}
+				else if (const auto* keyEvent = event->getIf<sf::Event::KeyReleased>())
+				{
+					//Check which key was released
+					switch (keyEvent->scancode)
 					{
-						//Close the window
-						window.close();
-
-						break;
-					}
-					//If the key has been released
-					case sf::Event::KeyReleased:
-					{
-						//Check which key was released
-						switch (event.key.code)
+						//If it's C or Z
+						case sf::Keyboard::Scancode::C:
+						case sf::Keyboard::Scancode::Z:
 						{
-							//If it's C or Z
-							case sf::Keyboard::C:
-							case sf::Keyboard::Z:
-							{
-								//Rotation key is not pressed anymore
-								rotate_pressed = 0;
+							//Rotation key is not pressed anymore
+							rotate_pressed = 0;
 
-								break;
-							}
-							//If it's Down
-							case sf::Keyboard::Down:
-							{
-								//Reset the soft drop timer
-								soft_drop_timer = 0;
+							break;
+						}
+						//If it's Down
+						case sf::Keyboard::Scancode::Down:
+						{
+							//Reset the soft drop timer
+							soft_drop_timer = 0;
 
-								break;
-							}
-							//If it's Left or Right
-							case sf::Keyboard::Left:
-							case sf::Keyboard::Right:
-							{
-								//Reset the move timer
-								move_timer = 0;
+							break;
+						}
+						//If it's Left or Right
+						case sf::Keyboard::Scancode::Left:
+						case sf::Keyboard::Scancode::Right:
+						{
+							//Reset the move timer
+							move_timer = 0;
 
-								break;
-							}
-							//If it's Space
-							case sf::Keyboard::Space:
-							{
-								//Hard drop key is not pressed anymore
-								hard_drop_pressed = 0;
-							}
+							break;
+						}
+						//If it's Space
+						case sf::Keyboard::Scancode::Space:
+						{
+							//Hard drop key is not pressed anymore
+							hard_drop_pressed = 0;
 						}
 					}
 				}
@@ -163,12 +156,11 @@ int main()
 			{
 				//If the game over is 0
 				if (0 == game_over)
-				{
-					//If the rotate pressed is 0 (Damn, I'm so good at commenting!)
+				{					//If the rotate pressed is 0 (Damn, I'm so good at commenting!)
 					if (0 == rotate_pressed)
 					{
 						//If the C is pressed
-						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::C))
 						{
 							//Rotation key is pressed!
 							rotate_pressed = 1;
@@ -176,7 +168,7 @@ int main()
 							//Do a barrel roll
 							tetromino.rotate(1, matrix);
 						} //Else, if the Z is pressed
-						else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+						else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Z))
 						{
 							//Rotation key is pressed!
 							rotate_pressed = 1;
@@ -184,13 +176,11 @@ int main()
 							//Do a barrel roll but to the other side!
 							tetromino.rotate(0, matrix);
 						}
-					}
-
-					//If the move timer is 0
+					}					//If the move timer is 0
 					if (0 == move_timer)
 					{
 						//If the Left is pressed
-						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Left))
 						{
 							//Reset the move timer
 							move_timer = 1;
@@ -198,7 +188,7 @@ int main()
 							//Move the tetromino to the left
 							tetromino.move_left(matrix);
 						}
-						else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+						else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right))
 						{
 							//Reset the move timer
 							move_timer = 1;
@@ -211,13 +201,11 @@ int main()
 					{
 						//Update the move timer
 						move_timer = (1 + move_timer) % MOVE_SPEED;
-					}
-
-					//If hard drop is not pressed
+					}					//If hard drop is not pressed
 					if (0 == hard_drop_pressed)
 					{
 						//But the Space is pressed, which is the hard drop key (Paradox?)
-						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space))
 						{
 							//Get rid of the paradox!
 							hard_drop_pressed = 1;
@@ -228,12 +216,10 @@ int main()
 							//Make the falling tetromino drop HAAAAARD!
 							tetromino.hard_drop(matrix);
 						}
-					}
-
-					//I don't wanna rewrite the same thing again so just look at the comments above and use your head
+					}					//I don't wanna rewrite the same thing again so just look at the comments above and use your head
 					if (0 == soft_drop_timer)
 					{
-						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+						if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Down))
 						{
 							if (1 == tetromino.move_down(matrix))
 							{
@@ -314,9 +300,8 @@ int main()
 					{
 						//Increment the fall timer
 						fall_timer++;
-					}
-				} //This is the code for restarting the game
-				else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+					}				} //This is the code for restarting the game
+				else if (1 == sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Enter))
 				{
 					//We set everything to 0
 					game_over = 0;
@@ -382,15 +367,13 @@ int main()
 			if (FRAME_DURATION > lag)
 			{
 				//Calculating the size of the effect squares
-				unsigned char clear_cell_size = static_cast<unsigned char>(2 * round(0.5f * CELL_SIZE * (clear_effect_timer / static_cast<float>(CLEAR_EFFECT_DURATION))));
-
-				//We're gonna use this object to draw every cell in the game
+				unsigned char clear_cell_size = static_cast<unsigned char>(2 * round(0.5f * CELL_SIZE * (clear_effect_timer / static_cast<float>(CLEAR_EFFECT_DURATION))));				//We're gonna use this object to draw every cell in the game
 				sf::RectangleShape cell(sf::Vector2f(CELL_SIZE - 1, CELL_SIZE - 1));
 				//Next shape preview border (White square at the corner)
 				sf::RectangleShape preview_border(sf::Vector2f(5 * CELL_SIZE, 5 * CELL_SIZE));
 				preview_border.setFillColor(sf::Color(0, 0, 0));
 				preview_border.setOutlineThickness(-1);
-				preview_border.setPosition(CELL_SIZE * (1.5f * COLUMNS - 2.5f), CELL_SIZE * (0.25f * ROWS - 2.5f));
+				preview_border.setPosition(sf::Vector2f(CELL_SIZE * (1.5f * COLUMNS - 2.5f), CELL_SIZE * (0.25f * ROWS - 2.5f)));
 
 				//Clear the window from the previous frame
 				window.clear();
@@ -398,11 +381,10 @@ int main()
 				//Draw the matrix
 				for (unsigned char a = 0; a < COLUMNS; a++)
 				{
-					for (unsigned char b = 0; b < ROWS; b++)
-					{
+					for (unsigned char b = 0; b < ROWS; b++)					{
 						if (0 == clear_lines[b])
 						{
-							cell.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
+							cell.setPosition(sf::Vector2f(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b)));
 
 							if (1 == game_over && 0 < matrix[a][b])
 							{
@@ -423,22 +405,19 @@ int main()
 
 				//If the game is not over
 				if (0 == game_over)
-				{
-					//Drawing the ghost tetromino
+				{					//Drawing the ghost tetromino
 					for (Position& mino : tetromino.get_ghost_minos(matrix))
 					{
-						cell.setPosition(static_cast<float>(CELL_SIZE * mino.x), static_cast<float>(CELL_SIZE * mino.y));
+						cell.setPosition(sf::Vector2f(static_cast<float>(CELL_SIZE * mino.x), static_cast<float>(CELL_SIZE * mino.y)));
 
 						window.draw(cell);
 					}
 
 					cell.setFillColor(cell_colors[1 + tetromino.get_shape()]);
-				}
-
-				//Drawing the falling tetromino
+				}				//Drawing the falling tetromino
 				for (Position& mino : tetromino.get_minos())
 				{
-					cell.setPosition(static_cast<float>(CELL_SIZE * mino.x), static_cast<float>(CELL_SIZE * mino.y));
+					cell.setPosition(sf::Vector2f(static_cast<float>(CELL_SIZE * mino.x), static_cast<float>(CELL_SIZE * mino.y)));
 					
 					window.draw(cell);
 				}
@@ -448,16 +427,15 @@ int main()
 				{
 					for (unsigned char b = 0; b < ROWS; b++)
 					{
-						if (1 == clear_lines[b])
-						{
+						if (1 == clear_lines[b])						{
 							cell.setFillColor(cell_colors[0]);
-							cell.setPosition(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b));
+							cell.setPosition(sf::Vector2f(static_cast<float>(CELL_SIZE * a), static_cast<float>(CELL_SIZE * b)));
 							cell.setSize(sf::Vector2f(CELL_SIZE - 1, CELL_SIZE - 1));
 
 							window.draw(cell);
 
 							cell.setFillColor(sf::Color(255, 255, 255));
-							cell.setPosition(floor(CELL_SIZE * (0.5f + a) - 0.5f * clear_cell_size), floor(CELL_SIZE * (0.5f + b) - 0.5f * clear_cell_size));
+							cell.setPosition(sf::Vector2f(floor(CELL_SIZE * (0.5f + a) - 0.5f * clear_cell_size), floor(CELL_SIZE * (0.5f + b) - 0.5f * clear_cell_size)));
 							cell.setSize(sf::Vector2f(clear_cell_size, clear_cell_size));
 
 							window.draw(cell);
@@ -486,9 +464,7 @@ int main()
 					else if (3 != next_shape)
 					{
 						next_tetromino_x -= static_cast<unsigned char>(round(0.5f * CELL_SIZE));
-					}
-
-					cell.setPosition(next_tetromino_x, next_tetromino_y);
+					}					cell.setPosition(sf::Vector2f(next_tetromino_x, next_tetromino_y));
 
 					window.draw(cell);
 				}
