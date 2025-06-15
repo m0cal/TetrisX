@@ -371,17 +371,17 @@ void Renderer::render_leaderboard(const LeaderboardManager& leaderboard_manager)
         "HIGH SCORES",
         window,
         sf::Color::Cyan,
-        1.5f
+        1.0f  // Reduced from 1.5f
     );
     
     // Draw header
     draw_text_centered(
         center_x,
-        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.2f),
+        static_cast<unsigned short>(CELL_SIZE * ROWS * 0.18f),
         "Rank  Name      Score     Level Lines Time",
         window,
         sf::Color::White,
-        0.6f
+        0.45f  // Reduced from 0.6f
     );
     
     // Draw scores
@@ -392,11 +392,11 @@ void Renderer::render_leaderboard(const LeaderboardManager& leaderboard_manager)
         
         draw_text_centered(
             center_x,
-            static_cast<unsigned short>(CELL_SIZE * ROWS * (0.3f + i * 0.06f)),
+            static_cast<unsigned short>(CELL_SIZE * ROWS * (0.3f + i * 0.04f)),  // Reduced spacing from 0.06f to 0.04f, moved start from 0.3f to 0.25f
             entry_text,
             window,
             sf::Color::White,
-            0.5f
+            0.4f  // Reduced from 0.5f
         );
     }
     
@@ -409,7 +409,7 @@ void Renderer::render_leaderboard(const LeaderboardManager& leaderboard_manager)
             "No high scores yet!",
             window,
             sf::Color(128, 128, 128),
-            0.8f
+            0.6f  // Reduced from 0.8f
         );
     }
     
@@ -420,7 +420,7 @@ void Renderer::render_leaderboard(const LeaderboardManager& leaderboard_manager)
         "Press ESC to return to menu",
         window,
         sf::Color::Magenta,
-        0.6f
+        0.5f  // Reduced from 0.6f
     );
     
     window.display();
