@@ -74,6 +74,7 @@ void Game::update()
         if (state.get_selected_menu_option() == 2)
         {
             static bool enter_pressed = false;
+            
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Enter) && !enter_pressed)
             {
                 enter_pressed = true;
@@ -83,28 +84,12 @@ void Game::update()
             {
                 enter_pressed = false;
             }
-            
-            // Handle mouse click for exit
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-            {
-                sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
-                sf::Vector2f world_pos = window.mapPixelToCoords(mouse_pos);
-                
-                float game_x = world_pos.x;
-                float game_y = world_pos.y;
-                float exit_button_y = CELL_SIZE * ROWS * 0.6f;
-                float button_height = CELL_SIZE * ROWS * 0.06f;
-                float center_x = CELL_SIZE * COLUMNS;
-                float button_half_width = CELL_SIZE * COLUMNS * 0.4f;
-                float button_left = center_x - button_half_width;
-                float button_right = center_x + button_half_width;
-                
-                if (game_x >= button_left && game_x <= button_right &&
-                    game_y >= exit_button_y && game_y <= exit_button_y + button_height)
-                {
-                    window.close();
-                }
-            }
+        }
+        
+        // Check if exit was requested via mouse click
+        if (state.is_exit_requested())
+        {
+            window.close();
         }
     }
     else if (state.get_current_mode() == GameMode::LEADERBOARD)
@@ -150,6 +135,10 @@ void Game::update()
                     failure_sound_played = true;
                 }
                 state.set_game_over(game_over);
+                if (game_over)
+                {
+                    state.set_current_mode(GameMode::GAME_OVER);
+                }
                 state.set_next_shape(state.generate_next_shape());
             }
         }
@@ -205,6 +194,10 @@ void Game::handle_tetromino_placement()
             failure_sound_played = true;
         }
         state.set_game_over(game_over);
+        if (game_over)
+        {
+            state.set_current_mode(GameMode::GAME_OVER);
+        }
         state.set_next_shape(state.generate_next_shape());
     }
 }

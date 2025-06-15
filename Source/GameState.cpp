@@ -5,6 +5,7 @@ GameState::GameState() :
     game_over(false),
     hard_drop_pressed(false),
     rotate_pressed(false),
+    exit_requested(false),
     current_mode(GameMode::MENU),
     selected_menu_option(0),
     lines_cleared(0),

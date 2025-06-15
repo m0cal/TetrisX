@@ -56,6 +56,7 @@ void InputHandler::handle_gameplay_input(GameState& state, Tetromino& tetromino)
         {
             state.set_current_mode(GameMode::MENU);
             state.set_selected_menu_option(0);
+            state.set_exit_requested(false); // Reset exit flag when returning to menu
         }
     }
 }
@@ -193,13 +194,15 @@ void InputHandler::handle_menu_mouse_input(sf::RenderWindow& window, GameState& 
     float game_x = world_pos.x;
     float game_y = world_pos.y;
     
-    // Define menu button areas - matching the text positions
+    // Define menu button areas - matching the exact text positions from Renderer.cpp
     // Text is centered at x = CELL_SIZE * COLUMNS = 80
-    // START button is at y = CELL_SIZE * ROWS * 0.45f = 72
-    // EXIT button is at y = CELL_SIZE * ROWS * 0.55f = 88
-    float start_button_y = CELL_SIZE * ROWS * 0.42f;  // Slightly above text
-    float exit_button_y = CELL_SIZE * ROWS * 0.52f;   // Slightly above text
-    float button_height = CELL_SIZE * ROWS * 0.06f;   // Smaller height
+    // START button is at y = CELL_SIZE * ROWS * 0.4f = 64
+    // LEADERBOARD button is at y = CELL_SIZE * ROWS * 0.5f = 80
+    // EXIT button is at y = CELL_SIZE * ROWS * 0.6f = 96
+    float start_button_y = CELL_SIZE * ROWS * 0.4f - CELL_SIZE * 0.5f;  // Center around text
+    float leaderboard_button_y = CELL_SIZE * ROWS * 0.5f - CELL_SIZE * 0.5f;  // Center around text
+    float exit_button_y = CELL_SIZE * ROWS * 0.6f - CELL_SIZE * 0.5f;   // Center around text
+    float button_height = CELL_SIZE;   // One cell height for better clickability
     
     // Center the clickable area around the text
     float center_x = CELL_SIZE * COLUMNS; // 80
@@ -207,26 +210,49 @@ void InputHandler::handle_menu_mouse_input(sf::RenderWindow& window, GameState& 
     float button_left = center_x - button_half_width;     // 48
     float button_right = center_x + button_half_width;    // 112
     
+    static bool mouse_clicked = false;
+    bool mouse_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    
     // Check if mouse is over START button
     if (game_x >= button_left && game_x <= button_right &&
         game_y >= start_button_y && game_y <= start_button_y + button_height)
     {
         state.set_selected_menu_option(0);
         
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+        if (mouse_pressed && !mouse_clicked)
         {
+            mouse_clicked = true;
             state.reset_game();
+        }
+    }
+    // Check if mouse is over LEADERBOARD button
+    else if (game_x >= button_left && game_x <= button_right &&
+             game_y >= leaderboard_button_y && game_y <= leaderboard_button_y + button_height)
+    {
+        state.set_selected_menu_option(1);
+        
+        if (mouse_pressed && !mouse_clicked)
+        {
+            mouse_clicked = true;
+            state.set_current_mode(GameMode::LEADERBOARD);
         }
     }
     // Check if mouse is over EXIT button
     else if (game_x >= button_left && game_x <= button_right &&
              game_y >= exit_button_y && game_y <= exit_button_y + button_height)
     {
-        state.set_selected_menu_option(1);
+        state.set_selected_menu_option(2);
         
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+        if (mouse_pressed && !mouse_clicked)
         {
-            // Exit will be handled in main game loop
+            mouse_clicked = true;
+            state.set_exit_requested(true);
         }
+    }
+    
+    // Reset mouse click state when button is released
+    if (!mouse_pressed)
+    {
+        mouse_clicked = false;
     }
 }

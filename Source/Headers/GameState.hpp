@@ -11,6 +11,7 @@ private:
     bool game_over;
     bool hard_drop_pressed;
     bool rotate_pressed;
+    bool exit_requested;
     
     GameMode current_mode;
     int selected_menu_option; // 0 = Start Game, 1 = Leaderboard, 2 = Exit
@@ -39,6 +40,7 @@ public:
     bool is_game_over() const { return game_over; }
     bool is_hard_drop_pressed() const { return hard_drop_pressed; }
     bool is_rotate_pressed() const { return rotate_pressed; }
+    bool is_exit_requested() const { return exit_requested; }
     GameMode get_current_mode() const { return current_mode; }
     int get_selected_menu_option() const { return selected_menu_option; }
     unsigned get_lines_cleared() const { return lines_cleared; }
@@ -58,6 +60,7 @@ public:
     void set_game_over(bool value) { game_over = value; }
     void set_hard_drop_pressed(bool value) { hard_drop_pressed = value; }
     void set_rotate_pressed(bool value) { rotate_pressed = value; }
+    void set_exit_requested(bool value) { exit_requested = value; }
     void set_current_mode(GameMode mode) { current_mode = mode; }
     void set_selected_menu_option(int option) { selected_menu_option = option; }
     void set_fall_timer(unsigned char value) { fall_timer = value; }
