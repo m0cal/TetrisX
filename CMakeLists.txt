@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System)
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
 
 add_executable(tetris
+    Source/AudioManager.cpp
     Source/DrawText.cpp
     Source/GetTetromino.cpp
     Source/GetWallKickData.cpp
@@ -19,5 +20,5 @@ add_executable(tetris
     Source/Renderer.cpp
     Source/Game.cpp)
 target_include_directories(tetris PRIVATE Source/Headers)
-target_link_libraries(tetris PRIVATE SFML::Graphics SFML::Window SFML::System)
+target_link_libraries(tetris PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)
 install(TARGETS tetris)

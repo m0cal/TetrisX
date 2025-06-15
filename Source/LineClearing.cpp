@@ -1,8 +1,10 @@
 #include "Headers/LineClearing.hpp"
+#include "Headers/AudioManager.hpp"
 
-void LineClearing::check_and_mark_lines_for_clearing(GameState& state)
+void LineClearing::check_and_mark_lines_for_clearing(GameState& state, AudioManager& audio_manager)
 {
     const auto& matrix = state.get_matrix();
+    bool lines_found = false;
     
     for (unsigned char row = 0; row < ROWS; row++)
     {
@@ -10,7 +12,14 @@ void LineClearing::check_and_mark_lines_for_clearing(GameState& state)
         {
             state.increment_lines_cleared();
             state.set_clear_line(row, true);
+            lines_found = true;
         }
+    }
+    
+    // Play clear sound if any lines were found
+    if (lines_found)
+    {
+        audio_manager.play_sound(SoundType::CLEAR);
     }
 }
 

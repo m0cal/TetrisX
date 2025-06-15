@@ -10,24 +10,7 @@ Tetromino::Tetromino(unsigned char i_shape, const std::vector<std::vector<unsign
 	shape(i_shape),
 	minos(get_tetromino(i_shape, COLUMNS / 2, 1))
 {
-	//Random comment which I decided to put right here. This comment has no meaning.
-	//It's main purpose is to waste your time. You're still reading it. You're stupid. Stop it!
-	//You still wasting your time. THIS COMMENT DOES NOT HAVE ANY MEANING!
-	//Why are you still reading this?
-	//Here's how bacteria's reproduce:
-	/*
-	Bacteria reproduce by binary fission.
-	In this process the bacterium, which is a single cell, divides into two identical daughter cells.
-	Binary fission begins when the DNA of the bacterium divides into two (replicates).
-	The bacterial cell then elongates and splits into two daughter cells each with identical DNA to the parent cell.
-	Each daughter cell is a clone of the parent cell.
-
-	When conditions are favourable such as the right temperatureand nutrients are available,
-	some bacteria like Escherichia coli can I can't believe you're still reading this. Get a life! divide every 20 minutes.
-	This means that in just seven hours one bacterium can generate 2, 097, 152 bacteria.
-	After one more hour the number of bacteria will have risen to a colossal 16, 777, 216.
-	That's why we can quickly become ill when pathogenic microbes invade our bodies.
-	*/
+	
 }
 
 bool Tetromino::move_down(const std::vector<std::vector<unsigned char>>& i_matrix)

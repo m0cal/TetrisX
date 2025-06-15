@@ -4,10 +4,12 @@
 #include "Global.hpp"
 #include "GameState.hpp"
 
+class AudioManager;
+
 class LineClearing
 {
 public:
-    static void check_and_mark_lines_for_clearing(GameState& state);
+    static void check_and_mark_lines_for_clearing(GameState& state, AudioManager& audio_manager);
     static void process_line_clearing_effect(GameState& state);
     
 private:

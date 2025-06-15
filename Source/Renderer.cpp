@@ -18,6 +18,21 @@ Renderer::Renderer(sf::RenderWindow& window) : window(window), cell(sf::Vector2f
         sf::Color(219, 0, 0),      // Z-piece (red)
         sf::Color(73, 73, 85)      // Ghost/gray
     };
+    
+    // Load background texture
+    if (background_texture.loadFromFile("Resources/Images/background.png"))
+    {
+        background_sprite = std::make_unique<sf::Sprite>(background_texture);
+        
+        // Scale the background to fit the window
+        sf::Vector2u texture_size = background_texture.getSize();
+        sf::Vector2u window_size = window.getSize();
+        
+        float scale_x = static_cast<float>(window_size.x) / texture_size.x;
+        float scale_y = static_cast<float>(window_size.y) / texture_size.y;
+        
+        background_sprite->setScale(sf::Vector2f(scale_x, scale_y));
+    }
 }
 
 void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, unsigned lag)
@@ -25,6 +40,12 @@ void Renderer::render_frame(const GameState& state, const Tetromino& tetromino, 
     if (FRAME_DURATION > lag)
     {
         window.clear();
+        
+        // Draw background first
+        if (background_sprite)
+        {
+            window.draw(*background_sprite);
+        }
         
         if (state.get_current_mode() == GameMode::MENU)
         {
@@ -174,17 +195,39 @@ void Renderer::render_ui(const GameState& state)
     std::string text = "Lines:" + std::to_string(state.get_lines_cleared()) + 
                       "\nSpeed:" + std::to_string(START_FALL_SPEED / state.get_current_fall_speed()) + 'x';
     
-    if (state.is_game_over())
-    {
-        text += "\n\nGAME OVER\nPress ENTER to return to menu";
-    }
-    
     draw_text(
         static_cast<unsigned short>(CELL_SIZE * (0.5f + COLUMNS)),
         static_cast<unsigned short>(0.5f * CELL_SIZE * ROWS),
         text,
         window
     );
+    
+    if (state.is_game_over())
+    {
+        // Calculate center position for game over text
+        unsigned short center_x = static_cast<unsigned short>(CELL_SIZE * COLUMNS);
+        unsigned short center_y = static_cast<unsigned short>(CELL_SIZE * ROWS * 0.4f);
+        
+        // Draw "GAME OVER" with smaller font size
+        draw_text_centered(
+            center_x,
+            center_y,
+            "GAME OVER",
+            window,
+            sf::Color::Red,
+            1.2f  // Smaller scale compared to default
+        );
+        
+        // Draw instruction text with even smaller font
+        draw_text_centered(
+            center_x,
+            static_cast<unsigned short>(center_y + CELL_SIZE * 3),
+            "Press ENTER to return to menu",
+            window,
+            sf::Color::White,
+            0.6f  // Smaller scale for instruction text
+        );
+    }
 }
 
 unsigned char Renderer::calculate_clear_cell_size(unsigned char clear_effect_timer) const

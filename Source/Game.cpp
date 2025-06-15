@@ -2,6 +2,8 @@
 
 Game::Game() : 
     lag(0),
+    failure_sound_played(false),
+    previous_game_mode(GameMode::MENU),
     tetromino(state.generate_next_shape(), state.get_matrix()),
     window(sf::VideoMode({2 * CELL_SIZE * COLUMNS * SCREEN_RESIZE, CELL_SIZE * ROWS * SCREEN_RESIZE}), "Tetris", sf::Style::Close),
     renderer(window)
@@ -9,6 +11,9 @@ Game::Game() :
     setup_window();
     state.set_next_shape(state.generate_next_shape());
     previous_time = std::chrono::steady_clock::now();
+    
+    // Start background music
+    audio_manager.play_background_music();
 }
 
 void Game::setup_window()
@@ -45,7 +50,16 @@ void Game::run()
 
 void Game::update()
 {
-    InputHandler::handle_events(window, state);
+    // Check if game has been restarted (from GAME_OVER to PLAYING or MENU to PLAYING)
+    GameMode current_mode = state.get_current_mode();
+    if ((previous_game_mode == GameMode::GAME_OVER || previous_game_mode == GameMode::MENU) 
+        && current_mode == GameMode::PLAYING)
+    {
+        failure_sound_played = false;
+    }
+    previous_game_mode = current_mode;
+    
+    InputHandler::handle_events(window, state, audio_manager);
     
     if (state.get_current_mode() == GameMode::MENU)
     {
@@ -107,6 +121,11 @@ void Game::update()
             if (state.get_clear_effect_timer() == 0)
             {
                 bool game_over = !tetromino.reset(state.get_next_shape(), state.get_matrix());
+                if (game_over && !failure_sound_played)
+                {
+                    audio_manager.play_sound(SoundType::FAILURE);
+                    failure_sound_played = true;
+                }
                 state.set_game_over(game_over);
                 state.set_next_shape(state.generate_next_shape());
             }
@@ -133,11 +152,17 @@ void Game::handle_tetromino_falling()
 void Game::handle_tetromino_placement()
 {
     tetromino.update_matrix(state.get_matrix());
-    LineClearing::check_and_mark_lines_for_clearing(state);
+    audio_manager.play_sound(SoundType::DROP);
+    LineClearing::check_and_mark_lines_for_clearing(state, audio_manager);
     
     if (state.get_clear_effect_timer() == 0)
     {
         bool game_over = !tetromino.reset(state.get_next_shape(), state.get_matrix());
+        if (game_over && !failure_sound_played)
+        {
+            audio_manager.play_sound(SoundType::FAILURE);
+            failure_sound_played = true;
+        }
         state.set_game_over(game_over);
         state.set_next_shape(state.generate_next_shape());
     }

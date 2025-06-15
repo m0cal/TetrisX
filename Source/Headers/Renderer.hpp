@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory>
 #include "Global.hpp"
 #include "GameState.hpp"
 #include "Tetromino.hpp"
@@ -12,6 +13,8 @@ private:
     std::vector<sf::Color> cell_colors;
     sf::RectangleShape cell;
     sf::RenderWindow& window;
+    sf::Texture background_texture;
+    std::unique_ptr<sf::Sprite> background_sprite;
 
 public:
     explicit Renderer(sf::RenderWindow& window);

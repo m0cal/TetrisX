@@ -4,10 +4,12 @@
 #include "GameState.hpp"
 #include "Tetromino.hpp"
 
+class AudioManager;
+
 class InputHandler
 {
 public:
-    static void handle_events(sf::RenderWindow& window, GameState& state);
+    static void handle_events(sf::RenderWindow& window, GameState& state, AudioManager& audio_manager);
     static void handle_gameplay_input(GameState& state, Tetromino& tetromino);
     static void handle_menu_input(GameState& state);
     static void handle_menu_mouse_input(sf::RenderWindow& window, GameState& state);

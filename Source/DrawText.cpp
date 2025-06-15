@@ -15,7 +15,7 @@ void draw_text(unsigned short i_x, unsigned short i_y, const std::string& i_text
 
 	unsigned char character_width;
 	sf::Texture font_texture;
-	if (!font_texture.loadFromFile("Source/Resources/Images/Font.png"))
+	if (!font_texture.loadFromFile("Resources/Images/Font.png"))
 	{
 		// Handle error - could not load font
 		return;
@@ -64,7 +64,7 @@ void draw_text_centered(unsigned short i_x, unsigned short i_y, const std::strin
 
 	unsigned char character_width;
 	sf::Texture font_texture;
-	if (!font_texture.loadFromFile("Source/Resources/Images/Font.png"))
+	if (!font_texture.loadFromFile("Resources/Images/Font.png"))
 	{
 		// Handle error - could not load font
 		return;
@@ -104,7 +104,7 @@ void draw_text_centered(unsigned short i_x, unsigned short i_y, const std::strin
 unsigned short get_text_width(const std::string& i_text, float scale)
 {
 	sf::Texture font_texture;
-	if (!font_texture.loadFromFile("Source/Resources/Images/Font.png"))
+	if (!font_texture.loadFromFile("Resources/Images/Font.png"))
 	{
 		return 0;
 	}

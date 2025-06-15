@@ -1,13 +1,23 @@
 #include "Headers/InputHandler.hpp"
+#include "Headers/AudioManager.hpp"
 #include <iostream>
 
-void InputHandler::handle_events(sf::RenderWindow& window, GameState& state)
+void InputHandler::handle_events(sf::RenderWindow& window, GameState& state, AudioManager& audio_manager)
 {
     while (auto event = window.pollEvent())
     {
         if (const auto* closeEvent = event->getIf<sf::Event::Closed>())
         {
             window.close();
+        }
+        else if (const auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
+        {
+            switch (keyEvent->scancode)
+            {
+                case sf::Keyboard::Scancode::M:
+                    audio_manager.toggle_mute();
+                    break;
+            }
         }
         else if (const auto* keyEvent = event->getIf<sf::Event::KeyReleased>())
         {
