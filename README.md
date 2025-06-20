@@ -1,6 +1,6 @@
 # 🎮 TetrisX
 
-一个现代化的俄罗斯方块游戏，基于 [Kofybrek 的版本](https://github.com/Kofybrek/Tetris) 整体重构，迁移到 SFML 3 ，并添加了 UI ，计分系统、排行榜系统和多媒体支持。
+一个现代化的俄罗斯方块游戏，基于 [Kofybrek 的版本](https://github.com/Kofybrek/Tetris) 整体重构，迁移到 SFML 3 ，并添加了 UI ，计分系统、排行榜系统和多媒体支持，是复旦大学王雪平老师2025年面向对象程序设计课程大作业。
 
 ## 已有特性
 
